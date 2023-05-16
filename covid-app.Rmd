@@ -1,0 +1,112 @@
+---
+title: "covid-app"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loading the data and packages
+
+```{r data, message=FALSE,error=FALSE}
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+library(forecast)
+library(leaflet)
+data = read.csv('covid-data.csv')
+data[1:10,1:4]
+```
+
+# Data manipulations
+
+### Getting dates
+
+```{r world}
+data_dates = data[,5:96]
+dates = colnames(data_dates)
+```
+### Adding the map
+
+We take the square root of the numeric data so that the marker for the country with 2 times more cases has 2 times the area.
+
+```{r, message = FALSE, warning=FALSE}
+rad = apply(data_dates,2,sqrt)/10
+leaflet(data= data) %>% addTiles() %>%
+addCircleMarkers(lng = ~Long, lat = ~Lat, weight = 1,radius = ~(rad[,50]), popup= paste("Region:",data$Country.Region,"<br>","Infected", data_dates[,50]))
+```
+
+### Getting data for the world
+Summing all columns to get aggregated numbers for the world.
+```{r}
+allCases = colSums(data_dates)
+allCases = data.frame(allCases)
+ggplot(allCases, aes(x = 1:length(data_dates),y = allCases))+geom_line()+ labs(title = "All cases since 22.01.2020") +  xlab(label = "Days since outbreak") + ylab(label = 'Number of cases')
+        
+      
+```
+
+### Grouping by continent
+Using function *summarise_at* we can define the columns in the dataframe we are interested in, to apply *sum* function. In other words - we sum number of cases for each day for each country belonging to the given continent.
+
+```{r}
+Continents <- data %>% group_by(Region.Name) %>% summarise_at(dates,sum)
+```
+### Plot for continents
+```{r,echo = FALSE}
+continentNames = vector()
+for (continent in Continents$Region.Name){
+  continentNames = c(continentNames,continent)
+}
+continentNames[1] = "Other"
+numbers =Continents[,2:93]
+numbers = t(numbers)
+numbers = data.frame(numbers)
+colnames(numbers) = continentNames
+rownames(numbers) = 1:92
+days = 1:92
+Continents_graph = data.frame(days,numbers)
+continents.melted <- melt(Continents_graph, id = "days")
+ggplot(data = continents.melted, aes(x = days, y = value, color = variable)) +
+ geom_line() + xlab(label = "Days since 22.01.2020") + ylab(label = 'Number of cases')
+
+```
+
+### Grouping by country
+Similar to grouping by continent. 
+```{r}
+Countries <- data %>% group_by(Country.Region) %>% summarise_at(dates,sum)
+Countries[1:5,1:4]
+```
+# Data analysis
+### Adding forecasts
+We feed the past data to the *forecast* function to obtain simple prediction.
+```{r, echo = FALSE}
+countryNames = vector()
+for (country in Countries$Country.Region){
+  country = gsub("[^(a-zA-Z)|//)]", "", country)
+  country = gsub("\\)|\\(", "", country)
+  countryNames = c(countryNames,country)
+  
+}
+numbers =Countries[,2:93]
+numbers = t(numbers)
+numbers = data.frame(numbers)
+colnames(numbers) = countryNames
+rownames(numbers) = 1:92
+days = 1:92
+Countries_graph = data.frame(days,numbers)
+```
+
+
+
+```{r}
+fcast = forecast(Countries_graph[,'China'])
+plot(fcast, main = c('China', "forecast"), ylab = "Number of cases", xlab= 'Days since outbrake 22.01.2020')
+```
+
+
