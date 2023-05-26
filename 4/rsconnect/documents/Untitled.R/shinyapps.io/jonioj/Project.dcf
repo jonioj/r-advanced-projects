@@ -1,0 +1,14 @@
+name: Project
+title: Project
+username:
+account: jonioj
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9187879
+bundleId: 7263925
+url: https://jonioj.shinyapps.io/Project/
+when: 1685042596.22948
+lastSyncTime: 1685042596.2295
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: archive.zip|heart.csv|project_4.R

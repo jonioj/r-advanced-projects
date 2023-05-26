@@ -1,0 +1,14 @@
+name: Project_4
+title: Project_4
+username:
+account: jonioj
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9187225
+bundleId: 7266497
+url: https://jonioj.shinyapps.io/Project_4/
+when: 1685093639.60713
+lastSyncTime: 1685093639.60714
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: archive.zip|project_4_2.R
