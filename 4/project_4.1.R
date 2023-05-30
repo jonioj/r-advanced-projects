@@ -1,3 +1,4 @@
+
 library(ggplot2)
 library(shiny)
 library(gganimate)
@@ -27,13 +28,12 @@ server <- function(input, output) {
     gg_1 <- ggplot(heart) + geom_point_interactive (aes (x = age,
                                                               y = chol,
                                                               color = factor(sex),
-                                                         data_id = name
+                                                              data_id = name
                                                               )) +theme_bw()
     gg_2 <- ggplot(heart) + geom_point_interactive (aes (x = age,
                                                          y = trestbps,
                                                          color = factor(sex),
-                                                         data_id = name
-    )) +theme_bw()
+                                                         data_id = name)) +theme_bw()
     girafe(code = print(gg_1 + gg_2), width_svg = 8, height_svg = 4) %>% girafe_options(opts_hover(css = "fill:wheat;stroke:orange;r:5pt;"))
     
    })
